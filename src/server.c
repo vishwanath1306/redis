@@ -2763,10 +2763,19 @@ void initServer(void) {
     printf("SETTING VALUESIZE: %s\n", value_size_str);
 
     const char *server_db_trace = getenv("YCSB_TRACE");
-    const int *min_mempool_size = getenv("MIN_MEMPOOL_SIZE");
+    size_t min_mempool_size = 262144;
+    const char *min_mempool_size_str = getenv("MIN_MEMPOOL_SIZE");
+    if (min_mempool_size_str != NULL) {
+        min_mempool_size = (size_t)(strtol(min_mempool_size_str, &ptr, 10));
+    }
+    const char *num_registrations_str = getenv("NUM_REGISTRATIONS");
+    size_t num_registrations_per_mempool = 1;
+    if (num_registrations_str != NULL) {
+        num_registrations_per_mempool = (size_t)(strtol(num_registrations_str, &ptr, 10));
+    }
     if (server_db_trace != NULL) {
         /* Step 1: Load rust backing db or rust backing list db (pointer to rust hashmap) */
-        int ret = Mlx5Connection_load_ycsb_db(server.datapath, server_db_trace, &server.rust_backing_db, &server.rust_backing_list_db, num_keys, num_values, value_size_str, min_mempool_size);
+        int ret = Mlx5Connection_load_ycsb_db(server.datapath, server_db_trace, &server.rust_backing_db, &server.rust_backing_list_db, num_keys, num_values, value_size_str, min_mempool_size, num_registrations_per_mempool);
         if (ret != 0) {
             printf("Error: Could not run Mlx5_load_dbs with file %s\n", server_db_trace);
             exit(1);
