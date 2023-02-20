@@ -2845,6 +2845,7 @@ void initServer(void) {
         
     }
 
+    Mlx5Connection_initialize_zero_copy_cache_thread(server.datapath);
     Mlx5_global_debug_init();
 
     // write to ready file
