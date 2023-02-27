@@ -2773,9 +2773,17 @@ void initServer(void) {
     if (num_registrations_str != NULL) {
         num_registrations_per_mempool = (size_t)(strtol(num_registrations_str, &ptr, 10));
     }
+    const char *register_at_start_str = getenv("REGISTER_AT_START");
+    size_t register_at_start = 0;
+    if (register_at_start_str != NULL) {
+        register_at_start = (size_t)(strtol(register_at_start_str, &ptr, 10));
+        if (register_at_start != 1) {
+            register_at_start = 0;
+        }
+    }
     if (server_db_trace != NULL) {
         /* Step 1: Load rust backing db or rust backing list db (pointer to rust hashmap) */
-        int ret = Mlx5Connection_load_ycsb_db(server.datapath, server_db_trace, &server.rust_backing_db, &server.rust_backing_list_db, num_keys, num_values, value_size_str, min_mempool_size, num_registrations_per_mempool);
+        int ret = Mlx5Connection_load_ycsb_db(server.datapath, server_db_trace, &server.rust_backing_db, &server.rust_backing_list_db, num_keys, num_values, value_size_str, min_mempool_size, num_registrations_per_mempool, register_at_start);
         if (ret != 0) {
             printf("Error: Could not run Mlx5_load_dbs with file %s\n", server_db_trace);
             exit(1);
